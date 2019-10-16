@@ -1,0 +1,47 @@
+{{ partial "header.html" . }}
+
+<main class="{{ if .IsHome }}home{{ end }}">
+
+{{if and (not .IsHome) (not (eq .Section "archive")) }}
+<h1>{{ .Title }}</h1>
+{{ end }}
+
+{{ .Content }}
+
+{{ if .IsHome }}
+{{ .Scratch.Set "PageList" (where .Site.RegularPages "Params.pinned" true) }}
+{{ else }}
+{{ .Scratch.Set "PageList" (where .Data.Pages "Section" "archive") }}
+{{ end }}
+
+<div class="item-list">
+{{ range $index, $element := (.Scratch.Get "PageList") }}
+<section class="article-list"{{if not $.IsHome }}{{ with .Params.length_weight }} style="background: linear-gradient(to top, #75aadb, white {{ . }});"{{ end }}{{ end }}>
+  <h1><a href="{{ .Params.link }}" target="_blank">{{ .Title }}</a></h1>
+  {{ with .Params.author }}<h2 class="author">by {{ . }}</h2>{{ end }}
+  <div class="list-meta">
+    <span>{{ if .Params.date }}{{ .Date.Format "2006-01-02" }}{{ else }}{{ .Site.LastChange.Format "2006-01-02" }}*{{ end }}</span>
+    {{ with .Params.repo }}
+    <span>
+      {{ if $.IsHome }}
+      <a class="github-button" href="https://github.com/{{ . }}" data-show-count="{{ not $.Site.IsServer }}" data-size="large" aria-label="Star {{ . }} on GitHub">Star</a>
+      {{ else }}
+      <a href="https://github.com/{{ . }}"><svg viewBox="0 0 16 16"><use xlink:href="#icon-github"></use></svg></a>
+      {{ end }}
+      </span>
+    {{ end }}
+  </div>
+  <div class="summary">
+    {{ if .Params.cover }}
+    <div class="thumbnail"><a href="{{ .Params.link }}" target="_blank"><img src="{{ .Params.cover }}" alt="{{ .Title }}" /></a></div>
+    {{ end }}
+    <p>{{ .Content | plainify | safeHTML }}
+    <a href="{{ .Params.link }}" class="more" title="Read More..." target="_blank">Read more &rarr;</a></p>
+  </div>
+  <span class="book-number">{{ add $index 1 }}</span>
+</section>
+{{ end }}
+</div>
+</main>
+
+{{ partial "footer.html" . }}
